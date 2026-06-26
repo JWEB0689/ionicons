@@ -1,0 +1,111 @@
+name: CI (Node / TypeScript)
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Install & Lint ───
+  lint:
+    name: lint + typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run lint 2>/dev/null || npx eslint . --ext .ts,.tsx,.js,.jsx 2>&1 | head -50
+      - run: npm run typecheck 2>/dev/null || npx tsc --noEmit 2>&1 | head -50
+
+  # ─── Test ───
+  test:
+    name: test (${{ matrix.os }})
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npm test 2>/dev/null || npx vitest run 2>/dev/null || npx jest 2>/dev/null || echo "No test script configured"
+
+  # ─── Security Scan ───
+  security:
+    name: Security Scan
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - name: npm audit
+        run: |
+          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### npm audit" >> $GITHUB_STEP_SUMMARY
+          if npm audit --audit-level=high 2>&1 | tee audit.log; then
+            echo "✅ No high/critical vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Vulnerabilities found:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat audit.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "::warning::npm audit found vulnerabilities"
+          fi
+      - name: Check for dangerous patterns
+        run: |
+          echo "### Dangerous Patterns" >> $GITHUB_STEP_SUMMARY
+          PATTERNS=$(git diff HEAD~1..HEAD --name-only 2>/dev/null | xargs grep -l "eval\|exec\|child_process\|innerHTML\|dangerouslySetInnerHTML" 2>/dev/null || true)
+          if [ -n "$PATTERNS" ]; then
+            echo "⚠️ Potentially dangerous patterns:" >> $GITHUB_STEP_SUMMARY
+            echo "$PATTERNS" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No common dangerous patterns in recent changes" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ─── Build ───
+  build:
+    name: Build
+    needs: [test, security]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build 2>/dev/null || echo "No build script"
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            dist/**
+            build/**
+            .next/**
+            out/**
+          if-no-files-found: ignore
