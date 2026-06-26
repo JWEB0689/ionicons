@@ -1,151 +1,203 @@
-# Contributing to Ionicons
+# Contributing to ionicons
 
-Thank you for your interest in contributing to Ionicons! :tada:
-
-This document outlines the guidelines and processes for contributing to this project.
+Thank you for your interest in contributing! This document outlines the process and standards for contributing to this project.
 
 ## Table of Contents
 
-- [Contributing to Ionicons](#contributing-to-ionicons)
-  - [Table of Contents](#table-of-contents)
-  - [Code of Conduct](#code-of-conduct)
-  - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Environment Setup](#environment-setup)
-  - [Development Workflow](#development-workflow)
-    - [Branch Strategy](#branch-strategy)
-    - [Component Modifications](#component-modifications)
-    - [Testing Changes](#testing-changes)
-    - [Code Style](#code-style)
-    - [Building](#building)
-  - [Submitting Issues](#submitting-issues)
-  - [Submitting Pull Requests](#submitting-pull-requests)
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Code Standards](#code-standards)
+- [Testing](#testing)
+- [Documentation](#documentation)
+- [Pull Request Process](#pull-request-process)
+- [Release Process](#release-process)
 
 ## Code of Conduct
 
-Please read our [Contributor Code of Conduct](./CODE_OF_CONDUCT.md) for information on our rules of conduct. By contributing to Ionicons, you agree to abide by its terms.
+This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). By participating, you are expected to uphold this code.
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (LTS version recommended)
-- [npm](https://www.npmjs.com/) (comes with Node.js)
-- Git
+- Node.js 18+, npm, TypeScript, Stencil (for component builds)
 
-### Environment Setup
+### Setup
 
-1. We recommend using [nvm](https://github.com/nvm-sh/nvm) (Node Version Manager) to manage Node.js versions:
-   - For macOS/Linux: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash`
-   - For Windows: Use [nvm-windows](https://github.com/coreybutler/nvm-windows)
-   - Install and use the LTS version: `nvm install --lts && nvm use --lts`
+```bash
+# Clone the repository
+git clone https://github.com/JWEB0689/ionicons.git
+cd ionicons
 
-   Alternatively, you can [download the installer](https://nodejs.org/) for the LTS version of Node.js directly.
+# Install dependencies
+npm ci
 
-2. Fork the repository on GitHub
-3. Clone your fork locally:
-   ```bash
-   git clone https://github.com/YOUR-USERNAME/ionicons.git
-   cd ionicons
-   ```
-4. Add the original repository as an upstream remote:
-   ```bash
-   git remote add upstream https://github.com/ionic-team/ionicons.git
-   ```
-5. Create a new branch from `main` for your change:
-   ```bash
-   git checkout -b your-feature-branch
-   ```
-6. Install dependencies:
-   ```bash
-   npm install
-   ```
-7. Run the initial build:
-   ```bash
-   npm run build
-   ```
-8. If desired, [modify the Icon Component](#component-modifications)
-9. Or, modify and preview the site
+# Run tests to verify setup
+npm test
+```
 
 ## Development Workflow
 
-### Branch Strategy
-
-- Always create a new branch from `main` for your changes:
-  ```bash
-  git checkout main
-  git pull upstream main
-  git checkout -b your-feature-branch
-  ```
-
-### Component Modifications
-
-If you're modifying the `ion-icon` component:
-
-1. Navigate to `src/components/` directory and open the `icon` component to modify
-2. Make your changes to the component code
-3. Test your changes (see [Testing Changes](#testing-changes))
-
-### Testing Changes
-
-To preview component changes:
-
-1. Run:
+1. **Fork** the repository
+2. **Create a branch** from `main`/`master`:
    ```bash
-   npm start
+   git checkout -b feature/your-feature-name
    ```
-   This will start a local version of the icon test with a test page
-   
-2. Modify the test page in `index.html` as needed to test your changes
-3. If you are modifying icons, you can run `npm run build.files` to re-run the SVG optimization script to verify there are no changes after optimizing the SVG
+3. **Make your changes** following the code standards below
+4. **Run tests and linting** locally:
+   ```bash
+   npm run lint {{LINT_CMD}}{{LINT_CMD}} npx tsc --noEmit
+   npm test
+   ```
+5. **Commit** with conventional commits:
+   ```bash
+   git commit -m "feat(scope): description of change"
+   ```
+6. **Push** to your fork and **open a Pull Request**
 
-### Code Style
+## Code Standards
 
-- This project uses Prettier for code formatting
-- Run `npm run prettier` to format your code before submitting
+### Conventional Commits
 
-### Building
+All commits must follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-- Run `npm run build` to build the complete package
-- Run `npm run build.files` to rebuild only the SVG icon files
+```
+<type>(<scope>): <description>
 
-## Submitting Issues
+[optional body]
 
-Please submit issues for:
-- Bug reports
-- Feature requests
-- General questions about the project
+[optional footer(s)]
+```
 
-When creating issues:
+Types:
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only
+- `style`: Formatting, missing semicolons, etc.
+- `refactor`: Code change that neither fixes a bug nor adds a feature
+- `perf`: Performance improvement
+- `test`: Adding missing tests
+- `chore`: Maintenance tasks
+- `ci`: CI/CD changes
 
-1. If you have a question about using Ionicons, please ask on the [Ionic Forum](http://forum.ionicframework.com/) or in the [Ionic Discord](https://ionic.link/discord).
+### Language-Specific Standards
 
-2. It is required that you clearly describe the steps necessary to reproduce the issue you are running into. Although we would love to help our users as much as possible, diagnosing issues without clear reproduction steps is extremely time-consuming and simply not sustainable.
+### TypeScript
+- Strict mode enabled
+- ESLint + Prettier
+- Stencil component conventions
 
-3. The issue list of this repository is exclusively for bug reports and feature requests. Non-conforming issues will be closed immediately.
+### SVG Icons
+- Optimize with SVGO
+- Consistent viewBox
+- Semantic naming
 
-4. Check if a similar issue already exists by searching through [existing issues](https://github.com/ionic-team/ionicons/issues?utf8=%E2%9C%93&q=is%3Aissue). You can search through existing issues to see if there is a similar one reported. Include closed issues as it may have been closed with a solution.
+### Testing
+- Unit tests with Jest
+- Visual regression with Chromatic
 
-5. Use the provided issue templates and clearly describe:
-   - Expected behavior
-   - Actual behavior
-   - Steps to reproduce (for bugs)
-   - Browser/device information when relevant
+### Formatting
 
-6. [Create a new issue](https://github.com/ionic-team/ionicons/issues/new/choose) that thoroughly explains the problem.
+- Run the formatter before committing: `npm run fmt`
+- CI will fail if code is not properly formatted
 
-## Submitting Pull Requests
+### Linting
 
-1. Before submitting a Pull Request (PR), please:
-   - Create an issue first to discuss the proposed changes
-   - Comment on an existing issue mentioning you'd like to work on it
-   - Look for issues labeled with [`help wanted`](https://github.com/ionic-team/ionicons/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) if you're new to the project
+- Run linter before committing: `npm run lint {{LINT_CMD}}{{LINT_CMD}} npx tsc --noEmit`
+- No new lint warnings allowed
 
-2. Creating the PR:
-   - Update your fork to the latest upstream main
-   - Make your changes in a new git branch
-   - Follow the code style of the project
-   - Include relevant tests
-   - Make sure all tests pass: `npm test`
-   - Update documentation if needed
-   - [Create a new pull request](https://github.com/ionic-team/ionicons/compare) with the `main` branch as the base.
+## Testing
+
+### Running Tests
+
+```bash
+npm test
+```
+
+### Test Requirements
+
+- All new features must include tests
+- Bug fixes must include a regression test
+- Aim for >80% code coverage
+- Tests must pass on all supported platforms
+
+### Test Organization
+
+- Unit tests: `tests/unit/` or `*_test.*` alongside source
+- Integration tests: `tests/integration/`
+- E2E tests: `tests/e2e/`
+
+## Documentation
+
+### Required Documentation Updates
+
+- **README.md**: Update if user-facing behavior changes
+- **CHANGELOG.md**: Add entry under "Unreleased" section
+- **API docs**: Update docstrings/comments for public APIs
+- **Architecture docs**: Update if structural changes
+
+### Documentation Style
+
+- Clear, concise, and example-driven
+- Keep it up to date with code changes
+- Use markdown for all documentation
+
+## Pull Request Process
+
+### Before Submitting
+
+- [ ] Tests pass locally (`npm test`)
+- [ ] Linting passes (`npm run lint {{LINT_CMD}}{{LINT_CMD}} npx tsc --noEmit`)
+- [ ] Formatting correct (`npm run fmt`)
+- [ ] Documentation updated
+- [ ] CHANGELOG.md updated (under "Unreleased")
+- [ ] Conventional commit messages
+
+### PR Requirements
+
+- **Title**: Follows conventional commits (e.g., `feat: add new feature`)
+- **Description**: Explains *what* and *why*, not *how*
+- **Linked Issues**: Reference related issues (`Fixes #123`)
+- **Screenshots**: For UI changes
+- **Breaking Changes**: Clearly marked in description
+
+### Review Process
+
+1. Automated CI must pass
+2. At least 1 maintainer approval required
+3. No unresolved review comments
+4. Branch must be up to date with base branch
+
+### Merge Strategy
+
+- **Squash and merge** for feature branches
+- **Rebase and merge** for small fixes
+- **Merge commit** for major releases
+
+## Release Process
+
+Releases are automated via GitHub Actions:
+
+1. Tag a release: `git tag v1.2.3 && git push origin v1.2.3`
+2. CI builds artifacts for all platforms
+3. GitHub Release created with artifacts
+4. CHANGELOG.md updated automatically
+5. Package published to registry (if configured)
+
+### Versioning
+
+Follows [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Breaking changes
+- **MINOR**: New features (backward compatible)
+- **PATCH**: Bug fixes (backward compatible)
+
+## Getting Help
+
+- Open a [Discussion](../../discussions) for questions
+- Check existing [Issues](../../issues) before creating new ones
+- For security issues, see [SECURITY.md](SECURITY.md)
+
+---
+
+*Template based on rtk/odysseus contributing guidelines*
